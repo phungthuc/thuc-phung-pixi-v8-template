@@ -1,0 +1,309 @@
+# PixiJS v8 Development Rules & Best Practices
+
+## 🎮 Game Development Architecture
+
+### Core Structure
+- **Game.ts**: Main game class, handles Application initialization, coordinates all managers
+- **BoardManager.ts**: Manages game grid, node positioning, grid operations
+- **Node.ts**: Individual game elements with interactive properties
+- **PathTracker.ts**: Handles user input, path validation, match detection
+- **RefillManager.ts**: Manages grid refilling, node spawning, chain reactions
+- **UIManager.ts**: UI elements, score display, game state indicators
+
+### File Organization
+```
+src/
+├── core/
+│   ├── Game.ts              # Main game controller
+│   ├── BoardManager.ts      # Grid management
+│   ├── Node.ts             # Interactive game elements
+│   ├── PathTracker.ts      # Input handling & path logic
+│   ├── RefillManager.ts    # Grid refilling & spawning
+│   └── UIManager.ts        # UI management
+├── systems/                # Additional game systems
+├── utils/                  # Helper functions
+└── main.ts                # Entry point
+```
+
+## 🚀 PixiJS v8 Specific Rules
+
+### Application Initialization
+```typescript
+// ✅ CORRECT - PixiJS v8 way
+const app = new Application();
+await app.init({
+    width: 480,
+    height: 720,
+    backgroundColor: 0x222a36,
+    antialias: true,
+});
+document.body.appendChild(app.canvas);
+
+// ❌ WRONG - Old v7 way
+const app = new Application({ width: 480, height: 720 });
+document.body.appendChild(app.view);
+```
+
+### Canvas Access
+```typescript
+// ✅ CORRECT
+app.canvas                    // Direct canvas access
+app.canvas.style.position = "absolute"
+app.canvas.width             // Canvas width
+app.canvas.height            // Canvas height
+
+// ❌ WRONG
+app.view.canvas              // Not needed in v8
+app.view as HTMLCanvasElement // Unnecessary casting
+```
+
+### Interactive Events (Event Mode System)
+```typescript
+// ✅ CORRECT - PixiJS v8 Event Mode
+displayObject.eventMode = "static";     // Non-bubbling events
+displayObject.eventMode = "dynamic";    // Bubbling events
+displayObject.eventMode = "none";       // No events
+displayObject.cursor = "pointer";       // Cursor style
+
+// ❌ WRONG - Old v7 way
+displayObject.interactive = true;
+displayObject.buttonMode = true;
+```
+
+### Event Registration
+```typescript
+// ✅ CORRECT - Event registration
+node.on('pointerdown', () => this.onPointerDown(node));
+node.on('pointerover', () => this.onPointerMove(node));
+node.on('pointerup', () => this.onPointerUp());
+
+// ✅ CORRECT - Document events for global handling
+document.addEventListener('pointerup', () => this.onPointerUp());
+```
+
+### Graphics Drawing
+```typescript
+// ✅ CORRECT - Modern Graphics API
+graphics.clear();
+graphics.rect(0, 0, width, height);
+graphics.fill({ color: 0xff0000, alpha: 1 });
+
+// ✅ CORRECT - Legacy API (still works)
+graphics.clear();
+graphics.beginFill(0xff0000);
+graphics.drawCircle(0, 0, radius);
+graphics.endFill();
+```
+
+### Text Properties
+```typescript
+// ✅ CORRECT - Text anchor setting
+text.anchor.set(0.5, 0);     // Center horizontally, top vertically
+text.anchor.set(0.5, 0.5);   // Center both axes
+
+// ❌ WRONG
+text.anchor = { x: 0.5, y: 0 }; // Type error in v8
+```
+
+## 🎯 Game Development Patterns
+
+### Manager Pattern
+```typescript
+// ✅ CORRECT - Manager class structure
+export class GameManager {
+    private game: Game;
+    
+    constructor(game: Game) {
+        this.game = game;
+    }
+    
+    public update(): void {
+        // Update logic
+    }
+    
+    public destroy(): void {
+        // Cleanup logic
+    }
+}
+```
+
+### Event-Driven Architecture
+```typescript
+// ✅ CORRECT - Event handling
+export class InputManager {
+    private onMatch: (nodes: Node[]) => void = () => {};
+    
+    public setMatchCallback(callback: (nodes: Node[]) => void): void {
+        this.onMatch = callback;
+    }
+    
+    private handleMatch(nodes: Node[]): void {
+        this.onMatch(nodes);
+    }
+}
+```
+
+### Node Management
+```typescript
+// ✅ CORRECT - Node creation with events
+export class NodeManager {
+    private pathTracker: PathTracker;
+    
+    createNode(row: number, col: number, color: NodeColor): Node {
+        const node = new Node(row, col, color);
+        this.pathTracker.registerNodeEvents(node); // Register events immediately
+        return node;
+    }
+}
+```
+
+## 🔧 Development Workflow
+
+### 1. Project Setup
+```bash
+# Initialize new PixiJS v8 project
+npm init -y
+npm install pixi.js@^8.0.0
+npm install -D typescript vite @types/node
+```
+
+### 2. TypeScript Configuration
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
+```
+
+### 3. Vite Configuration
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        format: 'es'
+      }
+    }
+  }
+});
+```
+
+## 🎨 Best Practices
+
+### Performance
+- Use `sortableChildren = true` for z-index management
+- Clear graphics before redrawing: `graphics.clear()`
+- Remove event listeners on destroy
+- Use object pooling for frequently created/destroyed objects
+
+### Memory Management
+```typescript
+// ✅ CORRECT - Proper cleanup
+export class GameObject {
+    destroy(): void {
+        this.removeAllListeners();
+        this.parent?.removeChild(this);
+        this.destroy({ children: true });
+    }
+}
+```
+
+### Responsive Design
+```typescript
+// ✅ CORRECT - Responsive canvas
+app.resizeTo = app.canvas;
+window.addEventListener('resize', () => {
+    // Handle resize logic
+});
+```
+
+### Debug & Development
+```typescript
+// ✅ CORRECT - Debug logging
+console.log(`Node created: row=${row}, col=${col}, color=${color}`);
+console.log(`Pointer down on node:`, node.row, node.col, node.color);
+```
+
+## 🚨 Common Pitfalls to Avoid
+
+### 1. Event Mode Confusion
+```typescript
+// ❌ WRONG - Mixing old and new APIs
+sprite.interactive = true;  // Old v7
+sprite.eventMode = "static"; // New v8 - use this instead
+```
+
+### 2. Canvas Access
+```typescript
+// ❌ WRONG - Incorrect canvas access
+document.body.appendChild(app.view); // Old v7
+// ✅ CORRECT
+document.body.appendChild(app.canvas); // New v8
+```
+
+### 3. Async Initialization
+```typescript
+// ❌ WRONG - Synchronous initialization
+const app = new Application({ width: 480, height: 720 });
+// ✅ CORRECT
+const app = new Application();
+await app.init({ width: 480, height: 720 });
+```
+
+### 4. Event Registration for New Objects
+```typescript
+// ❌ WRONG - Forgetting to register events for new objects
+const newNode = new Node(row, col, color);
+container.addChild(newNode); // Missing event registration!
+
+// ✅ CORRECT
+const newNode = new Node(row, col, color);
+container.addChild(newNode);
+pathTracker.registerNodeEvents(newNode); // Register events!
+```
+
+## 📋 Template Checklist
+
+When starting a new PixiJS v8 project:
+
+- [ ] Initialize Application with async init()
+- [ ] Set up proper canvas styling
+- [ ] Create manager classes for different game systems
+- [ ] Implement event-driven architecture
+- [ ] Set up proper TypeScript configuration
+- [ ] Configure Vite for ES modules
+- [ ] Implement proper cleanup and memory management
+- [ ] Add debug logging for development
+- [ ] Test interactive elements thoroughly
+- [ ] Ensure new objects get proper event registration
+
+## 🎯 Quick Start Commands
+
+```bash
+# Create new project structure
+mkdir my-pixijs-game && cd my-pixijs-game
+npm init -y
+npm install pixi.js@^8.0.0
+npm install -D typescript vite @types/node
+
+# Create basic file structure
+mkdir -p src/core src/systems src/utils
+touch src/main.ts src/core/Game.ts src/core/BoardManager.ts
+
+# Start development
+npm run dev
+```
+
+This rule set ensures consistent, maintainable, and performant PixiJS v8 development across all projects. 
