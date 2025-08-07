@@ -1,0 +1,50 @@
+{
+  "name": "pixijs-v8-template",
+  "version": "1.0.0",
+  "description": "PixiJS v8 Template for HTML5 Games and Playable Ads",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config-dev.js",
+    "build-data": "node scripts/thucBuild.js",
+    "build": "vite build --config vite.config-production.js",
+    "preview": "vite preview",
+    "clean": "rimraf dist",
+    "lint": "eslint src --ext .ts,.js",
+    "lint:fix": "eslint src --ext .ts,.js --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@barvynkoa/particle-emitter": "^0.0.1",
+    "@esotericsoftware/spine-pixi-v8": "^4.2.70",
+    "@pixi/ui": "^2.2.0",
+    "@tweenjs/tween.js": "^25.0.0",
+    "howler": "^2.2.4",
+    "i18n-js": "^4.5.0",
+    "pixi.js": "^8.6.6"
+  },
+  "devDependencies": {
+    "@pixi/devtools": "^2.0.1",
+    "@types/howler": "^2.2.12",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "eslint": "^9.17.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.2",
+    "vite-plugin-singlefile": "^2.1.0",
+    "glob": "^11.0.1",
+     "sharp": "^0.33.5",
+    "yargs": "^17.7.2"
+  },
+  "keywords": [
+    "pixijs",
+    "html5",
+    "typescript",
+    "vite",
+    "template",
+    "game",
+    "playable-ads"
+  ],
+  "author": "Thuc Phung",
+  "license": "MIT"
+} 

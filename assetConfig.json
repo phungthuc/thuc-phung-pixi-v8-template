@@ -1,0 +1,42 @@
+{
+  "$schema": "./thucbuild/config.schema.json",
+  "paths": {
+    "RAW_ASSET_PATH": "assets",
+    "CRYPTION_CONFIG_FILE": "./src/cryptionConfig.js",
+    "ASSET_DATA_FILENAME": "assetData.json",
+    "BUILD_ASSET_PATH": "dist/assets/"
+  },
+  "compressMode": "none",
+  "audiosprite": {
+    "export": "mp3",
+    "format": "howler2",
+    "bitrate": 128,
+    "channels": 2,
+    "samplerate": 48000,
+    "log": "error"
+  },
+  "atlas": {
+    "allowRotation": false,
+    "allowTrim": false,
+    "alphaThreshold": 128,
+    "detectIdentical": true,
+    "engine": "pixi",
+    "extrude": 2,
+    "height": 4096,
+    "ignoreFolders": false,
+    "outputFormat": "webp",
+    "pngOptLevel": 1,
+    "powerOfTwo": true,
+    "quality": 80,
+    "tool": "tp",
+    "width": 4096
+  },
+  "optimization": {
+    "model": {
+      "enabled": false
+    },
+    "texture": {
+      "enabled": false
+    }
+  }
+} 
